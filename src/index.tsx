@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
 import { Layout } from "./layout";
 import staticPlugin from "@elysiajs/static";
-import { EachMessage } from "./components";
+import { ChatRoom, EachMessage } from "./components";
 
 const dataSetup = new Elysia({
   name: "dataSetup",
@@ -10,50 +10,53 @@ const dataSetup = new Elysia({
   messages: [],
 });
 
+const SOCKET_GENERIC_TOPIC = "mx_chat_room";
+
 const app = new Elysia({ name: "app" })
   .use(dataSetup)
   .use(staticPlugin())
   .use(html())
+  .ws("/chatroom", {
+    open(ws) {
+      ws.subscribe(SOCKET_GENERIC_TOPIC);
+    },
+    body: t.Object({
+      chatInput: t.String({
+        maxLength: 30,
+        error: "Please have proper length of message.",
+      }),
+      HEADERS: t.Object({
+        "HX-Request": t.Nullable(t.String()),
+        "HX-Trigger": t.Nullable(t.String()),
+        "HX-Trigger-Name": t.Nullable(t.String()),
+        "HX-Target": t.Nullable(t.String()),
+        "HX-Current-URL": t.Nullable(t.String()),
+      }),
+    }),
+    message(ws, { chatInput }: { chatInput: string }) {
+      if (!chatInput) return;
+      app.store.messages.push(chatInput);
+
+      ws.send(
+        // SOCKET_GENERIC_TOPIC,
+        <div id="chat_container" hx-swap-oob="beforeend">
+          <EachMessage message={chatInput} />
+        </div>
+      );
+      console.log({ chatInput });
+    },
+  })
 
   .get("/", ({ store }) => (
-    <Layout
-      children={
-        <div>
-          <h1 class="">hello! Its chat mx</h1>
-          <div id="chat_container">
-            <h2>Chats will appear here...</h2>
-            {store.messages?.length > 0 &&
-              store.messages.map((each_msg) => (
-                <EachMessage message={each_msg} />
-              ))}
-          </div>
-          <form
-            hx-post="/api/message"
-            hx-target="#chat_container"
-            hx-swap="beforeend"
-            _="on submit target.reset()"
-          >
-            <input
-              class="border px-2 py-1"
-              id="input_message"
-              type="text"
-              name="message"
-              placeholder="write message.."
-            />
-            <button class="px-3 py-1 rounded border" type="submit">
-              Send
-            </button>
-          </form>
-        </div>
-      }
-    />
+    <Layout children={<ChatRoom messages={store.messages} />} />
   ))
   .group("/api", (app) =>
     app.post(
       "/message",
       ({ body: { message }, store }) => {
-        store.messages.push(message);
-        return <EachMessage message={message} />;
+        // store.messages.push(message);
+        // app.server?.publish(SOCKET_GENERIC_TOPIC, message);
+        // return <EachMessage message={message} />;
       },
       {
         body: t.Object({

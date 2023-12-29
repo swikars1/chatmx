@@ -12,12 +12,13 @@ export const Layout = ({ children }: { children: JSX.Element }) => {
 
         <script src="/public/htmx.min.js"></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@unocss/reset/tailwind.min.css"
         />
         <link rel="stylesheet" href="/public/dist/unocss.css" />
-        <script>{safeScript}</script>
+        {/* <script>{safeScript}</script> */}
       </head>
       <body>
         <h1>ChatMX</h1>

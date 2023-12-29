@@ -3,6 +3,7 @@
 /* layer: default */
 .mx-2{margin-left:0.5rem;margin-right:0.5rem;}
 .my-4{margin-top:1rem;margin-bottom:1rem;}
+.w-100{width:25rem;}
 .border{border-width:1px;}
 .rounded{border-radius:0.25rem;}
 .px-2{padding-left:0.5rem;padding-right:0.5rem;}

@@ -1,6 +1,6 @@
 export function liveReloadScript({
   debounceTime = 100,
-  url = "ws://localhost:3001/ws",
+  url = "ws://localhost:3000/ws",
 }: {
   url?: string;
   debounceTime?: number;
