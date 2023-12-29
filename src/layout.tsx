@@ -4,11 +4,12 @@ export const Layout = ({ children }: { children: JSX.Element }) => {
   return (
     <html lang="en">
       <head>
-        <title>Hello World</title>
+        <title>ChatMX App</title>
+        <script src="/public/htmx.min.js"></script>
       </head>
       <body>
-        <h1>Hello World</h1>
-        {children}
+        <h1>ChatMX</h1>
+        <div>{children}</div>
       </body>
     </html>
   );
