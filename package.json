@@ -2,16 +2,25 @@
   "name": "chatmx",
   "version": "1.0.50",
   "scripts": {
-    "test": "xss-scan",
-    "dev": "bun run --watch src/index.tsx"
+    "dev": "concurrently \"bun run --hot src/index.tsx\" \"bun run uno:dev\"",
+    "uno": "bunx --bun unocss",
+    "uno:dev": "bunx --bun unocss --watch",
+    "typecheck": "bunx --bun tsc",
+    "format:check": "prettier --check .",
+    "format": "prettier --write . --list-different",
+    "lint": "eslint . --report-unused-disable-directives",
+    "lint:fix": "eslint . --report-unused-disable-directives --fix"
   },
   "dependencies": {
     "@elysiajs/html": "^0.8.0",
     "@elysiajs/static": "^0.8.1",
-    "elysia": "latest"
+    "elysia": "latest",
+    "unocss": "^0.58.2"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "@unocss/transformer-variant-group": "^0.58.2",
+    "bun-types": "latest",
+    "concurrently": "^8.2.2"
   },
   "module": "src/index.js"
 }

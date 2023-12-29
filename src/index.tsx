@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
 import { Layout } from "./layout";
 import staticPlugin from "@elysiajs/static";
+import { EachMessage } from "./components";
 
 const dataSetup = new Elysia({
   name: "dataSetup",
@@ -14,18 +15,16 @@ const app = new Elysia({ name: "app" })
   .use(staticPlugin())
   .use(html())
 
-  .get("/", ({ store }) =>
-    Layout({
-      children: (
+  .get("/", ({ store }) => (
+    <Layout
+      children={
         <div>
           <h1 class="">hello! Its chat mx</h1>
           <div id="chat_container">
-            <h2>chat will come here</h2>
+            <h2>Chats will appear here...</h2>
             {store.messages?.length > 0 &&
               store.messages.map((each_msg) => (
-                <div safe id="each_message">
-                  {each_msg}
-                </div>
+                <EachMessage message={each_msg} />
               ))}
           </div>
           <form
@@ -46,19 +45,15 @@ const app = new Elysia({ name: "app" })
             </button>
           </form>
         </div>
-      ),
-    })
-  )
+      }
+    />
+  ))
   .group("/api", (app) =>
     app.post(
       "/message",
       ({ body: { message }, store }) => {
         store.messages.push(message);
-        return (
-          <div safe id="each_message">
-            {message}
-          </div>
-        );
+        return <EachMessage message={message} />;
       },
       {
         body: t.Object({
