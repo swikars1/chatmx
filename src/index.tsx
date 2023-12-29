@@ -18,7 +18,7 @@ const app = new Elysia({ name: "app" })
     Layout({
       children: (
         <div>
-          <h1>hello! Its chat mx</h1>
+          <h1 class="">hello! Its chat mx</h1>
           <div id="chat_container">
             <h2>chat will come here</h2>
             {store.messages?.length > 0 &&
@@ -30,16 +30,20 @@ const app = new Elysia({ name: "app" })
           </div>
           <form
             hx-post="/api/message"
-            hx-select-oob="#chat_container:beforeend"
+            hx-target="#chat_container"
             hx-swap="beforeend"
+            _="on submit target.reset()"
           >
             <input
+              class="border px-2 py-1"
               id="input_message"
               type="text"
               name="message"
               placeholder="write message.."
             />
-            <button type="submit">Send</button>
+            <button class="px-3 py-1 rounded border" type="submit">
+              Send
+            </button>
           </form>
         </div>
       ),
@@ -51,10 +55,8 @@ const app = new Elysia({ name: "app" })
       ({ body: { message }, store }) => {
         store.messages.push(message);
         return (
-          <div id="chat_container">
-            <div safe id="each_message">
-              {message}
-            </div>
+          <div safe id="each_message">
+            {message}
           </div>
         );
       },
