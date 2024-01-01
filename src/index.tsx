@@ -16,9 +16,8 @@ const app = new Elysia({ name: "app" })
   .use(dataSetup)
   .use(staticPlugin())
   .use(html())
-  .ws("/chatroom", {
+  .ws("/ws/chatroom", {
     open(ws) {
-      // ws.raw.subscribe(SOCKET_GENERIC_TOPIC);
       ws.subscribe(SOCKET_GENERIC_TOPIC);
     },
     body: t.Object({
@@ -36,14 +35,18 @@ const app = new Elysia({ name: "app" })
     }),
     message(ws, { chatInput }: { chatInput: string }) {
       if (!chatInput) return;
-      app.store.messages.push(chatInput);
 
-      ws.send(
-        // SOCKET_GENERIC_TOPIC,
+      const msgPayload = (
         <div id="chat_container" hx-swap-oob="beforeend">
           <EachMessage message={chatInput} />
         </div>
-      );
+      ) as string;
+      //send to subscribers
+      ws.raw.publishText(SOCKET_GENERIC_TOPIC, msgPayload);
+      //send to the sender for htmx swap
+      ws.raw.sendText(msgPayload);
+      // save in memory
+      app.store.messages.push(chatInput);
     },
   })
 

@@ -2,9 +2,9 @@ import { EachMessage } from ".";
 
 export const ChatRoom = ({ messages }: { messages: string[] }) => {
   return (
-    <div hx-ext="ws" ws-connect="/chatroom">
+    <div hx-ext="ws" ws-connect="/ws/chatroom">
       <h1 class="text-large">hello! Its chat mx</h1>
-      <div id="chat_container" hx-swap-oob="beforeend">
+      <div id="chat_container">
         <h2>Chats will appear here...</h2>
         {messages?.length > 0 &&
           messages.map((each_msg) => <EachMessage message={each_msg} />)}
