@@ -18,6 +18,11 @@ export const Layout = ({ children }: { children: JSX.Element }) => {
           href="https://cdn.jsdelivr.net/npm/@unocss/reset/tailwind.min.css"
         />
         <link rel="stylesheet" href="/public/dist/unocss.css" />
+        <script defer>{`htmx.logger = function(elt, event, data) {
+            if(console) {
+                console.log(event, elt, data);
+            }
+          }`}</script>
         {/* <script>{safeScript}</script> */}
       </head>
       <body>

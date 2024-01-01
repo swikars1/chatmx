@@ -18,6 +18,7 @@ const app = new Elysia({ name: "app" })
   .use(html())
   .ws("/chatroom", {
     open(ws) {
+      // ws.raw.subscribe(SOCKET_GENERIC_TOPIC);
       ws.subscribe(SOCKET_GENERIC_TOPIC);
     },
     body: t.Object({
@@ -43,7 +44,6 @@ const app = new Elysia({ name: "app" })
           <EachMessage message={chatInput} />
         </div>
       );
-      console.log({ chatInput });
     },
   })
 
