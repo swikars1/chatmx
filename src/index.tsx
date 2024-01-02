@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
-import { Layout } from "./layout";
+import { BaseHtml } from "./BaseHtml";
 import staticPlugin from "@elysiajs/static";
 import { ChatRoom, EachMessage } from "./components";
 import { config } from "./config";
@@ -78,7 +78,7 @@ const app = new Elysia({ name: "app" })
     }
   })
   .get("/", ({ store }) => (
-    <Layout children={<ChatRoom messages={store.messages} />} />
+    <BaseHtml children={<ChatRoom messages={store.messages} />} />
   ))
   .ws("/ws/chatroom", {
     open(ws) {
@@ -107,26 +107,6 @@ const app = new Elysia({ name: "app" })
       app.store.messages.push(chatInput);
     },
   })
-
-  .group("/api", (app) =>
-    app.post(
-      "/message",
-      ({ body: { message }, store, db }) => {
-        // store.messages.push(message);
-        // app.server?.publish(SOCKET_GENERIC_TOPIC, message);
-        // return <EachMessage message={message} />;
-      },
-      {
-        body: t.Object({
-          message: t.String({
-            maxLength: 30,
-            error: "please have proper length of message.",
-          }),
-        }),
-      }
-    )
-  )
-
   .listen(3000);
 
 console.log(

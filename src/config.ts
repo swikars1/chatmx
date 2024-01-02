@@ -5,9 +5,11 @@ export const env = createEnv({
   server: {
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]),
     DATABASE_CONNECTION_TYPE: z.enum(["local", "remote", "local-replica"]),
-    TURSO_AUTH_TOKEN: z.string().min(1),
-    TURSO_DATABASE_URL: z.string().url(),
+    DATABASE_AUTH_TOKEN: z.string().min(1),
+    DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "production"]),
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
   },
   runtimeEnv: process.env,
   onValidationError: (error: ZodError) => {

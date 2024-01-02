@@ -1,6 +1,6 @@
 import { liveReloadScript } from "./liveReloadScript";
 
-export const Layout = ({ children }: { children: JSX.Element }) => {
+export const BaseHtml = ({ children }: { children: JSX.Element }) => {
   const safeScript = liveReloadScript();
   // config.env.NODE_ENV === "development" ? liveReloadScript() : "";
 
