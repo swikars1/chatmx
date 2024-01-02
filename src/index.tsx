@@ -3,6 +3,11 @@ import { html } from "@elysiajs/html";
 import { Layout } from "./layout";
 import staticPlugin from "@elysiajs/static";
 import { ChatRoom, EachMessage } from "./components";
+import { config } from "./config";
+import pretty from "pino-pretty";
+import { logger } from "@bogeychan/elysia-logger";
+import { HoltLogger } from "@tlscipher/holt";
+import { db } from "./db";
 
 const dataSetup = new Elysia({
   name: "dataSetup",
@@ -12,7 +17,36 @@ const dataSetup = new Elysia({
 
 const SOCKET_GENERIC_TOPIC = "mx_chat_room";
 
+const socketHeaderSchema = t.Object({
+  "HX-Request": t.Nullable(t.String()),
+  "HX-Trigger": t.Nullable(t.String()),
+  "HX-Trigger-Name": t.Nullable(t.String()),
+  "HX-Target": t.Nullable(t.String()),
+  "HX-Current-URL": t.Nullable(t.String()),
+});
+
+const stream = pretty({
+  colorize: true,
+});
+
+const loggerConfig =
+  config.env.NODE_ENV === "development"
+    ? {
+        level: config.env.LOG_LEVEL,
+        stream,
+      }
+    : { level: config.env.LOG_LEVEL };
+
 const app = new Elysia({ name: "app" })
+  .decorate("db", db)
+  .decorate("config", config)
+  .use(logger(loggerConfig))
+  .use(
+    // @ts-expect-error
+    config.env.NODE_ENV === "development"
+      ? new HoltLogger().getLogger()
+      : (a) => a
+  )
   .use(dataSetup)
   .use(staticPlugin())
   .use(html())
@@ -25,13 +59,7 @@ const app = new Elysia({ name: "app" })
         maxLength: 30,
         error: "Please have proper length of message.",
       }),
-      HEADERS: t.Object({
-        "HX-Request": t.Nullable(t.String()),
-        "HX-Trigger": t.Nullable(t.String()),
-        "HX-Trigger-Name": t.Nullable(t.String()),
-        "HX-Target": t.Nullable(t.String()),
-        "HX-Current-URL": t.Nullable(t.String()),
-      }),
+      HEADERS: socketHeaderSchema,
     }),
     message(ws, { chatInput }: { chatInput: string }) {
       if (!chatInput) return;
