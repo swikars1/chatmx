@@ -1,8 +1,8 @@
 import { blob, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { ulid } from "ulidx";
-import { chatRooms } from ".";
+import { chatRoom } from ".";
 
-export const users = sqliteTable("user", {
+export const user = sqliteTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => ulid()),
@@ -10,7 +10,7 @@ export const users = sqliteTable("user", {
     .notNull()
     .unique()
     .$defaultFn(() => ulid()),
-  chatRoomId: text("chat_room_id").references(() => chatRooms.id),
+  chatRoomId: text("chat_room_id").references(() => chatRoom.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -25,7 +25,7 @@ export const session = sqliteTable("user_session", {
     .$defaultFn(() => ulid()),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => user.id),
   activeExpires: blob("active_expires", {
     mode: "bigint",
   }).notNull(),
@@ -35,11 +35,9 @@ export const session = sqliteTable("user_session", {
 });
 
 export const key = sqliteTable("user_key", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => ulid()),
+  id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => user.id),
   hashedPassword: text("hashed_password"),
 });

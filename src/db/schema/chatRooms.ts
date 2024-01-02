@@ -2,7 +2,7 @@ import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import { ulid } from "ulidx";
 
-export const chatRooms = sqliteTable(
+export const chatRoom = sqliteTable(
   "chat_room",
   {
     id: text("id")
@@ -24,8 +24,8 @@ export const chatRooms = sqliteTable(
     };
   }
 );
-export type ChatRoom = typeof chatRooms.$inferSelect;
-export type InsertChatRoom = typeof chatRooms.$inferInsert;
+export type ChatRoom = typeof chatRoom.$inferSelect;
+export type InsertChatRoom = typeof chatRoom.$inferInsert;
 
-export const insertChatRoomSchema = createInsertSchema(chatRooms);
-export const selectChatRoomSchema = createSelectSchema(chatRooms);
+export const insertChatRoomSchema = createInsertSchema(chatRoom);
+export const selectChatRoomSchema = createSelectSchema(chatRoom);

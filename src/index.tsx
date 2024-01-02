@@ -1,20 +1,9 @@
 import { Elysia, t } from "elysia";
-import { html } from "@elysiajs/html";
 import { BaseHtml } from "./BaseHtml";
-import staticPlugin from "@elysiajs/static";
 import { ChatRoom, EachMessage } from "./components";
-import { config } from "./config";
-import pretty from "pino-pretty";
-import { logger } from "@bogeychan/elysia-logger";
-import { HoltLogger } from "@tlscipher/holt";
-import { client, db } from "./db";
-import cron from "@elysiajs/cron";
-
-const dataSetup = new Elysia({
-  name: "dataSetup",
-}).state<{ messages: string[] }>({
-  messages: [],
-});
+import staticPlugin from "@elysiajs/static";
+import { html } from "@elysiajs/html";
+import { ctx } from "./ctx";
 
 const socketHeaderSchema = t.Object({
   "HX-Request": t.Nullable(t.String()),
@@ -23,60 +12,12 @@ const socketHeaderSchema = t.Object({
   "HX-Target": t.Nullable(t.String()),
   "HX-Current-URL": t.Nullable(t.String()),
 });
-
-const stream = pretty({
-  colorize: true,
-});
-
-const loggerConfig =
-  config.env.NODE_ENV === "development"
-    ? {
-        level: config.env.LOG_LEVEL,
-        stream,
-      }
-    : { level: config.env.LOG_LEVEL };
-
 const SOCKET_GENERIC_TOPIC = "mx_chat_room";
 
-const app = new Elysia({ name: "app" })
-  .decorate("db", db)
-  .decorate("config", config)
-  .use(logger(loggerConfig))
-  .use(
-    // @ts-expect-error
-    config.env.NODE_ENV === "development"
-      ? new HoltLogger().getLogger()
-      : (a) => a
-  )
-  .use(dataSetup)
+const app = new Elysia({ name: "main_app" })
+  .use(ctx)
   .use(staticPlugin())
   .use(html())
-  .use(
-    // @ts-expect-error
-    config.env.DATABASE_CONNECTION_TYPE === "local-replica"
-      ? cron({
-          name: "heartbeat",
-          pattern: "*/2 * * * * *",
-          run() {
-            const now = performance.now();
-            console.log("Syncing database...");
-            void client.sync().then(() => {
-              console.log(`Database synced in ${performance.now() - now}ms`);
-            });
-          },
-        })
-      : (a) => a
-  )
-  .onResponse(({ log, request, set }) => {
-    if (log && config.env.NODE_ENV === "production") {
-      log.debug(`Response sent: ${request.method}: ${request.url}`);
-    }
-  })
-  .onError(({ log, error }) => {
-    if (log && config.env.NODE_ENV === "production") {
-      log.error(error);
-    }
-  })
   .get("/", ({ store }) => (
     <BaseHtml children={<ChatRoom messages={store.messages} />} />
   ))
