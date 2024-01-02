@@ -15,8 +15,6 @@ const dataSetup = new Elysia({
   messages: [],
 });
 
-const SOCKET_GENERIC_TOPIC = "mx_chat_room";
-
 const socketHeaderSchema = t.Object({
   "HX-Request": t.Nullable(t.String()),
   "HX-Trigger": t.Nullable(t.String()),
@@ -37,6 +35,8 @@ const loggerConfig =
       }
     : { level: config.env.LOG_LEVEL };
 
+const SOCKET_GENERIC_TOPIC = "mx_chat_room";
+
 const app = new Elysia({ name: "app" })
   .decorate("db", db)
   .decorate("config", config)
@@ -50,6 +50,9 @@ const app = new Elysia({ name: "app" })
   .use(dataSetup)
   .use(staticPlugin())
   .use(html())
+  .get("/", ({ store }) => (
+    <Layout children={<ChatRoom messages={store.messages} />} />
+  ))
   .ws("/ws/chatroom", {
     open(ws) {
       ws.subscribe(SOCKET_GENERIC_TOPIC);
@@ -78,9 +81,6 @@ const app = new Elysia({ name: "app" })
     },
   })
 
-  .get("/", ({ store }) => (
-    <Layout children={<ChatRoom messages={store.messages} />} />
-  ))
   .group("/api", (app) =>
     app.post(
       "/message",
