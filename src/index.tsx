@@ -7,7 +7,8 @@ import { config } from "./config";
 import pretty from "pino-pretty";
 import { logger } from "@bogeychan/elysia-logger";
 import { HoltLogger } from "@tlscipher/holt";
-import { db } from "./db";
+import { client, db } from "./db";
+import cron from "@elysiajs/cron";
 
 const dataSetup = new Elysia({
   name: "dataSetup",
@@ -50,6 +51,32 @@ const app = new Elysia({ name: "app" })
   .use(dataSetup)
   .use(staticPlugin())
   .use(html())
+  .use(
+    // @ts-expect-error
+    config.env.DATABASE_CONNECTION_TYPE === "local-replica"
+      ? cron({
+          name: "heartbeat",
+          pattern: "*/2 * * * * *",
+          run() {
+            const now = performance.now();
+            console.log("Syncing database...");
+            void client.sync().then(() => {
+              console.log(`Database synced in ${performance.now() - now}ms`);
+            });
+          },
+        })
+      : (a) => a
+  )
+  .onResponse(({ log, request, set }) => {
+    if (log && config.env.NODE_ENV === "production") {
+      log.debug(`Response sent: ${request.method}: ${request.url}`);
+    }
+  })
+  .onError(({ log, error }) => {
+    if (log && config.env.NODE_ENV === "production") {
+      log.error(error);
+    }
+  })
   .get("/", ({ store }) => (
     <Layout children={<ChatRoom messages={store.messages} />} />
   ))
@@ -84,7 +111,7 @@ const app = new Elysia({ name: "app" })
   .group("/api", (app) =>
     app.post(
       "/message",
-      ({ body: { message }, store }) => {
+      ({ body: { message }, store, db }) => {
         // store.messages.push(message);
         // app.server?.publish(SOCKET_GENERIC_TOPIC, message);
         // return <EachMessage message={message} />;

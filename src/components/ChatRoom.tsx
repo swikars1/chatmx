@@ -9,12 +9,7 @@ export const ChatRoom = ({ messages }: { messages: string[] }) => {
         {messages?.length > 0 &&
           messages.map((each_msg) => <EachMessage message={each_msg} />)}
       </div>
-      <form
-        // hx-target="#chat_container"
-        // hx-swap="beforeend"
-        ws-send
-        _="on submit target.reset()"
-      >
+      <form ws-send _="on submit target.reset()">
         <input
           class="border px-2 py-1 w-100"
           id="input_message"
