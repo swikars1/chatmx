@@ -12,17 +12,6 @@ const envAliasMap = {
 
 const envAlias = envAliasMap[config.env.NODE_ENV];
 
-type ElysiaContext = {
-  request: Request;
-  set: {
-    headers: Record<string, string> & {
-      ["Set-Cookie"]?: string | string[];
-    };
-    status?: number | undefined | string;
-    redirect?: string | undefined;
-  };
-};
-
 export const auth = lucia({
   env: envAlias,
   middleware: elysiaMiddlewareForLucia(),
