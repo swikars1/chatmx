@@ -10,6 +10,9 @@ export const user = sqliteTable("user", {
     .notNull()
     .unique()
     .$defaultFn(() => ulid()),
+  name: text("name").notNull(),
+  picture: text("name").notNull(),
+  email: text("email"),
   chatRoomId: text("chat_room_id").references(() => chatRoom.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

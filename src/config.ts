@@ -10,6 +10,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "production"]),
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
+    HOST_URL: z.string().min(1),
   },
   runtimeEnv: process.env,
   onValidationError: (error: ZodError) => {

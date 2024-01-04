@@ -1,5 +1,5 @@
 import { libsql } from "@lucia-auth/adapter-sqlite";
-import { github } from "@lucia-auth/oauth/providers";
+import { github, google } from "@lucia-auth/oauth/providers";
 import { lucia } from "lucia";
 import { config } from "../config";
 import { client } from "../db";
@@ -40,7 +40,8 @@ export const auth = lucia({
 
 export type Auth = typeof auth;
 
-export const githubAuth = github(auth, {
+export const githubAuth = google(auth, {
   clientId: config.env.GOOGLE_CLIENT_ID,
   clientSecret: config.env.GOOGLE_CLIENT_SECRET,
+  redirectUri: `${config.env.HOST_URL}/api/auth/google/callback`,
 });
